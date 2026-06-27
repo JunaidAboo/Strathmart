@@ -42,16 +42,7 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Product not found")
     return product
 
-@router.delete("/{product_id}")
-def delete_product(product_id: int, db: Session = Depends(get_db)):
-    product = db.query(models.Product).filter(models.Product.id == product_id).first()
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    db.delete(product)
-    db.commit()
-    return {"message": "Product deleted"}
-
-    @router.put("/{product_id}", response_model=schemas.ProductResponse)
+@router.put("/{product_id}", response_model=schemas.ProductResponse)
 def update_product(product_id: int, product: schemas.ProductCreate, db: Session = Depends(get_db)):
     existing = db.query(models.Product).filter(models.Product.id == product_id).first()
     if not existing:
@@ -61,3 +52,12 @@ def update_product(product_id: int, product: schemas.ProductCreate, db: Session 
     db.commit()
     db.refresh(existing)
     return existing
+
+@router.delete("/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+    db.delete(product)
+    db.commit()
+    return {"message": "Product deleted"}
