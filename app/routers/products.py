@@ -7,6 +7,10 @@ from typing import List
 router = APIRouter(prefix="/products", tags=["Products"])
 
 # --- Categories ---
+@router.get("/categories", response_model=List[schemas.CategoryResponse])
+def get_categories(db: Session = Depends(get_db)):
+    return db.query(models.Category).all()
+
 @router.post("/categories", response_model=schemas.CategoryResponse)
 def create_category(category: schemas.CategoryCreate, db: Session = Depends(get_db)):
     existing = db.query(models.Category).filter(models.Category.name == category.name).first()
@@ -18,11 +22,11 @@ def create_category(category: schemas.CategoryCreate, db: Session = Depends(get_
     db.refresh(new_category)
     return new_category
 
-@router.get("/categories", response_model=List[schemas.CategoryResponse])
-def get_categories(db: Session = Depends(get_db)):
-    return db.query(models.Category).all()
-
 # --- Products ---
+@router.get("/", response_model=List[schemas.ProductResponse])
+def get_products(db: Session = Depends(get_db)):
+    return db.query(models.Product).all()
+
 @router.post("/", response_model=schemas.ProductResponse)
 def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)):
     new_product = models.Product(**product.model_dump())
@@ -30,10 +34,6 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
     db.commit()
     db.refresh(new_product)
     return new_product
-
-@router.get("/", response_model=List[schemas.ProductResponse])
-def get_products(db: Session = Depends(get_db)):
-    return db.query(models.Product).all()
 
 @router.get("/{product_id}", response_model=schemas.ProductResponse)
 def get_product(product_id: int, db: Session = Depends(get_db)):
